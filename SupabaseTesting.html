@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js/dist/umd/supabase.js"></script>
+</head>
+<body>
+    <form>
+        <h3>Name</h3>
+        <input id="Name" type="text"></input>
+        <h3>Message</h3>
+        <input id="Message" type="text"></input>
+    </form>
+    <hr>
+    <button onclick="add()">Send</button>
+    <button onclick="refresh()">Refresh messages</button>
+    <hr>
+    <ul id="messages">
+        <li>Name - Message</li>
+    </ul>
+</body>
+</html>
+
+<script>
+
+const { createClient } = supabase;
+const supabaseClient = createClient('https://jjamulbpmzlzukfwxhqd.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpqYW11bGJwbXpsenVrZnd4aHFkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mjc3MDk1MTIsImV4cCI6MjA0MzI4NTUxMn0.Ozlmn7FjkSj4F_p99XL0iOFk9-0sS_PHAMsEZPcqT8k')
+    
+    async function add() {
+        
+        console.log("START ADDING MESSAGE")
+        const { error } = await supabaseClient
+            .from('messages')
+            .insert({username : document.getElementById("Name").value, content : document.getElementById("Message").value})
+        if (error) {
+            console.log("MESSAGE NOT ADDED");
+        } else {
+            console.log("MESSAGE ADDED");
+        }
+
+        refresh();
+    }
+
+    async function refresh() {
+        console.log("START REFRESH MESSAGES");
+        document.getElementById("messages").textContent = "";
+
+        const { data, error } = await supabaseClient
+            .from('messages')
+            .select()
+        if (error) {
+            console.log("MESSAGES NOT REFRESHED")
+        } else {
+            console.log("MESSAGES REFRESHED")
+        }
+        data.forEach(message => {
+            const node = document.createElement("li");
+            node.textContent = `${message.username} - ${message.content}`;
+            document.getElementById("messages").appendChild(node);
+        });
+    }
+</script>
